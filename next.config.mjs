@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === 'production';
+
 const nextConfig = {
+  output: 'export',
+  basePath: isProd ? '/fortune-insurance-workspace' : '',
+  assetPrefix: isProd ? '/fortune-insurance-workspace/' : '',
   reactStrictMode: true,
-  swcMinify: true,
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;
