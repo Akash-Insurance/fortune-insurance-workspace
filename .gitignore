@@ -23,3 +23,11 @@ Desktop.ini
 .env.production.local
 *.tmp
 temp/
+node_modules/
+
+# Next.js
+.next/
+out/
+build/
+tsconfig.tsbuildinfo
+next-env.d.ts
