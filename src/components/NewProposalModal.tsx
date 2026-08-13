@@ -84,7 +84,7 @@ export const NewProposalModal: React.FC<NewProposalModalProps> = ({
       compareIds: selectedSchemeIds,
       createdBy: user?.email || 'fortune.rahul@fortune.com',
       createdByDisplay: user?.name || 'Rahul Sharma (Senior Advisor)',
-      status: 'draft',
+      status: 'Created',
       date: new Date().toISOString().split('T')[0],
       category,
       totalPremium: members.reduce((acc, m) => acc + (m.premiumShare || 10000), 0),
@@ -157,6 +157,28 @@ export const NewProposalModal: React.FC<NewProposalModalProps> = ({
                 value={clientCity}
                 onChange={(e) => setClientCity(e.target.value)}
                 placeholder="e.g. Mumbai, Delhi"
+                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Client Email ID</label>
+              <input
+                type="email"
+                value={clientEmail}
+                onChange={(e) => setClientEmail(e.target.value)}
+                placeholder="e.g. client@example.com"
+                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Client Phone Number</label>
+              <input
+                type="tel"
+                value={clientPhone}
+                onChange={(e) => setClientPhone(e.target.value)}
+                placeholder="e.g. 9876543210"
                 className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs"
               />
             </div>

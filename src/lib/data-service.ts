@@ -111,16 +111,28 @@ export async function createProposal(proposal: Omit<Proposal, 'id' | 'createdAt'
   return newProposal;
 }
 
-export async function updateProposalStatus(id: string, status: ProposalStatus): Promise<Proposal | null> {
+export async function updateProposalStatus(id: string, status: ProposalStatus, userName: string = 'Admin'): Promise<Proposal | null> {
   if (isSupabaseConfigured && supabase) {
-    const { data, error } = await supabase.from('proposals').update({ status }).eq('id', id).select().single();
-    if (!error && data) return data as Proposal;
+    // Currently omitted, need raw SQL or RPC for appending JSONB in supabase
   }
 
   const proposals = getLocalItem<Proposal[]>(PROPOSALS_KEY, SEED_PROPOSALS);
   const idx = proposals.findIndex((p) => p.id === id);
   if (idx >= 0) {
+    const oldStatus = proposals[idx].status;
     proposals[idx].status = status;
+    
+    if (!proposals[idx].statusLog) {
+      proposals[idx].statusLog = [];
+    }
+    
+    proposals[idx].statusLog.push({
+      oldStatus,
+      newStatus: status,
+      changedBy: userName,
+      changedAt: new Date().toISOString()
+    });
+    
     setLocalItem(PROPOSALS_KEY, proposals);
     return proposals[idx];
   }
@@ -202,7 +214,7 @@ export async function getAnalyticsMetrics(): Promise<AnalyticsMetrics> {
 
   const totalProposals = proposals.length;
   const totalPremiumVolume = proposals.reduce((acc, p) => acc + (p.totalPremium || 35000), 0);
-  const purchased = proposals.filter((p) => p.status === 'purchased').length;
+  const purchased = proposals.filter((p) => p.status === 'Purchased').length;
   const conversionRate = totalProposals > 0 ? Math.round((purchased / totalProposals) * 100) : 0;
 
   // Category distribution
@@ -227,7 +239,7 @@ export async function getAnalyticsMetrics(): Promise<AnalyticsMetrics> {
   }));
 
   // Status distribution
-  const statusCounts: Record<ProposalStatus, number> = { draft: 0, sent: 0, purchased: 0, declined: 0 };
+  const statusCounts: Record<ProposalStatus, number> = { 'Created': 0, 'Sent to Client': 0, 'Accepted': 0, 'Purchased': 0, 'Declined': 0 };
   proposals.forEach((p) => {
     if (statusCounts[p.status] !== undefined) statusCounts[p.status] += 1;
   });
@@ -247,7 +259,7 @@ export async function getAnalyticsMetrics(): Promise<AnalyticsMetrics> {
     }
     advisorMap[advName].proposals += 1;
     advisorMap[advName].volume += p.totalPremium || 35000;
-    if (p.status === 'purchased') advisorMap[advName].purchased += 1;
+    if (p.status === 'Purchased') advisorMap[advName].purchased += 1;
   });
 
   const advisorPerformance = Object.values(advisorMap).map((adv) => ({

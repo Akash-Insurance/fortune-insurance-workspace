@@ -88,11 +88,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-3 cursor-pointer group" 
             onClick={() => handleSelectView('dashboard')}
           >
-            <div className="p-0.5 rounded-2xl bg-gradient-to-tr from-blue-500 via-indigo-500 to-emerald-400 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
-              <div className="w-10 h-10 rounded-[14px] bg-slate-900 flex items-center justify-center">
-                <ShieldCheck className="w-6 h-6 text-blue-400 group-hover:text-emerald-400 transition-colors" />
-              </div>
-            </div>
+            <img 
+              src="/logo.jpeg" 
+              alt="Fortune Investment Services" 
+              className="h-10 w-auto object-contain bg-white rounded p-1"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-lg tracking-tight text-white font-heading">Fortune</span>

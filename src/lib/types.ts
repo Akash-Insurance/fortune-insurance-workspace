@@ -110,7 +110,14 @@ export interface ClientProfile {
   members?: FamilyMember[];
 }
 
-export type ProposalStatus = 'draft' | 'sent' | 'purchased' | 'declined';
+export type ProposalStatus = 'Created' | 'Sent to Client' | 'Accepted' | 'Declined' | 'Purchased';
+
+export interface StatusLogEntry {
+  oldStatus: ProposalStatus | null;
+  newStatus: ProposalStatus;
+  changedBy: string;
+  changedAt: string;
+}
 
 export interface Proposal {
   id: string;
@@ -125,6 +132,7 @@ export interface Proposal {
   customNotes?: Record<string, string>;
   schemeCalculations?: Record<string, CalculatedPremiumDetails>;
   createdAt?: string;
+  statusLog?: StatusLogEntry[];
   totalPremium?: number;
 }
 

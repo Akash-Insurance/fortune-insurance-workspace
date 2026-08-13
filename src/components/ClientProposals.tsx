@@ -58,13 +58,15 @@ export const ClientProposals: React.FC<ClientProposalsProps> = ({
 
   const getStatusBadge = (status: ProposalStatus) => {
     switch (status) {
-      case 'draft':
-        return <span className="bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1"><Clock className="w-3 h-3 text-slate-500" /> Draft</span>;
-      case 'sent':
-        return <span className="bg-blue-50 text-blue-700 border border-blue-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1"><Send className="w-3 h-3 text-blue-600" /> Sent to Client</span>;
-      case 'purchased':
+      case 'Created':
+        return <span className="bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1"><Clock className="w-3 h-3 text-slate-500" /> Created</span>;
+      case 'Sent to Client':
+        return <span className="bg-blue-50 text-blue-700 border border-blue-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1"><Send className="w-3 h-3 text-blue-600" /> Sent</span>;
+      case 'Accepted':
+        return <span className="bg-amber-50 text-amber-700 border border-amber-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3 text-amber-600" /> Accepted</span>;
+      case 'Purchased':
         return <span className="bg-emerald-50 text-emerald-700 border border-emerald-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-600" /> Purchased</span>;
-      case 'declined':
+      case 'Declined':
         return <span className="bg-rose-50 text-rose-700 border border-rose-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1"><XCircle className="w-3 h-3 text-rose-600" /> Declined</span>;
     }
   };
@@ -119,10 +121,11 @@ export const ClientProposals: React.FC<ClientProposalsProps> = ({
             className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:border-blue-500"
           >
             <option value="all">All Statuses</option>
-            <option value="draft">Draft</option>
-            <option value="sent">Sent to Client</option>
-            <option value="purchased">Purchased / Closed</option>
-            <option value="declined">Declined</option>
+            <option value="Created">Created</option>
+            <option value="Sent to Client">Sent to Client</option>
+            <option value="Accepted">Accepted</option>
+            <option value="Purchased">Purchased</option>
+            <option value="Declined">Declined</option>
           </select>
         </div>
 
@@ -254,10 +257,11 @@ export const ClientProposals: React.FC<ClientProposalsProps> = ({
                     onChange={(e) => onUpdateStatus(prop.id, e.target.value as ProposalStatus)}
                     className="bg-transparent font-bold text-xs text-slate-800 focus:outline-none cursor-pointer"
                   >
-                    <option value="draft">Draft</option>
-                    <option value="sent">Sent to Client</option>
-                    <option value="purchased">Purchased / Closed</option>
-                    <option value="declined">Declined</option>
+                    <option value="Created">Created</option>
+                    <option value="Sent to Client">Sent to Client</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Purchased">Purchased</option>
+                    <option value="Declined">Declined</option>
                   </select>
                 </div>
 

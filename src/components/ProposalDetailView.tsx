@@ -20,9 +20,13 @@ import {
   Car, 
   Plane,
   Check,
-  Calculator
+  Calculator,
+  MessageCircle,
+  Mail,
+  Clock3
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { getInsurerLogoUrl } from '@/lib/insurer-logos';
 
 interface ProposalDetailViewProps {
@@ -48,7 +52,62 @@ export const ProposalDetailView: React.FC<ProposalDetailViewProps> = ({
 
   // PDF Export via html2canvas & print trigger
   const handleExportPDF = async () => {
-    window.print();
+    const input = document.getElementById('proposal-document-canvas');
+    if (!input) return;
+    
+    try {
+      const canvas = await html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      let heightLeft = pdfHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pdf.internal.pageSize.getHeight();
+
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pdf.internal.pageSize.getHeight();
+      }
+      
+      pdf.save(`Fortune_Proposal_${proposal.client?.name?.replace(/\s+/g, '_') || 'Client'}.pdf`);
+    } catch (err) {
+      console.error("Failed to generate PDF", err);
+      alert("Failed to generate PDF");
+    }
+  };
+
+  const draftMsg = `Hi ${proposal.client.name}, this is ${proposal.createdByDisplay || proposal.client.advisor} from Fortune Investment Services. Your insurance proposal report has been generated for you. Please find it attached. Feel free to reach out with any questions.`;
+
+  const handleSendWhatsApp = () => {
+    // Basic phone number extraction 
+    let phoneStr = proposal.client.phone || "";
+    const digits = phoneStr.replace(/\D/g, "");
+    if (!digits) {
+      alert("No valid mobile number found for this client.");
+      return;
+    }
+    window.open(`https://wa.me/${digits}?text=${encodeURIComponent(draftMsg)}`, "_blank");
+  };
+
+  const handleSendEmail = () => {
+    let emailStr = proposal.client.email;
+    if (!emailStr) {
+      alert("No email address found for this client.");
+      return;
+    }
+    const subject = `Your customized insurance proposal from Fortune Investment Services`;
+    window.open(`mailto:${emailStr}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(draftMsg)}`, "_blank");
   };
 
   return (
@@ -65,11 +124,26 @@ export const ProposalDetailView: React.FC<ProposalDetailViewProps> = ({
 
         <div className="flex items-center gap-3">
           <span className="text-xs text-slate-400 font-medium hidden sm:inline">Client Proposal Document</span>
+          
+          <button
+            onClick={handleSendWhatsApp}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all shadow-md"
+          >
+            <MessageCircle className="w-4 h-4" /> WhatsApp
+          </button>
+          
+          <button
+            onClick={handleSendEmail}
+            className="bg-slate-700 hover:bg-slate-600 text-white font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all shadow-md"
+          >
+            <Mail className="w-4 h-4" /> Email
+          </button>
+
           <button
             onClick={handleExportPDF}
             className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all"
           >
-            <Printer className="w-4 h-4" /> Print / Save as PDF
+            <Printer className="w-4 h-4" /> Save as PDF
           </button>
         </div>
       </div>
@@ -85,9 +159,11 @@ export const ProposalDetailView: React.FC<ProposalDetailViewProps> = ({
             {/* Header Brand */}
             <div className="flex items-center justify-between pb-8 border-b border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
-                  <ShieldCheck className="w-6 h-6 text-white" />
-                </div>
+                <img 
+                  src="/logo.jpeg" 
+                  alt="Fortune Investment Services" 
+                  className="h-12 w-auto bg-white rounded p-1 shadow-lg" 
+                />
                 <div>
                   <h2 className="text-lg font-bold text-white tracking-tight">Fortune Investment Services</h2>
                   <p className="text-[10px] text-blue-300 font-mono">IRDAI REGISTRATION NO: 10492/2026</p>
@@ -400,7 +476,7 @@ export const ProposalDetailView: React.FC<ProposalDetailViewProps> = ({
           {/* ================= FOOTER & COMPLIANCE DISCLAIMER ================= */}
           <footer className="pt-8 border-t border-slate-200 text-center space-y-3">
             <div className="flex items-center justify-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-blue-600" />
+              <img src="/logo.jpeg" alt="Fortune" className="h-6 w-auto object-contain" />
               <span className="font-bold text-slate-900 text-sm">Fortune Investment Services Pvt Ltd</span>
             </div>
             <p className="text-[11px] text-slate-500 max-w-2xl mx-auto leading-relaxed">
@@ -414,6 +490,35 @@ export const ProposalDetailView: React.FC<ProposalDetailViewProps> = ({
         </div>
 
       </main>
+
+      {/* Internal Advisor Status Log (Hidden on Print) */}
+      <div className="max-w-4xl mx-auto my-8 bg-white shadow-sm rounded-2xl border border-slate-200 overflow-hidden no-print">
+        <div className="bg-slate-50 border-b border-slate-200 p-4">
+          <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <Clock3 className="w-4 h-4 text-slate-500" /> Internal Status Audit Log
+          </h2>
+        </div>
+        <div className="p-4 space-y-3">
+          {proposal.statusLog && proposal.statusLog.length > 0 ? (
+            proposal.statusLog.map((log, idx) => (
+              <div key={idx} className="flex items-center gap-4 text-xs">
+                <div className="text-slate-400 font-mono w-40 shrink-0">
+                  {new Date(log.changedAt).toLocaleString()}
+                </div>
+                <div className="flex-1 flex items-center gap-2">
+                  <span className="font-semibold text-slate-700">{log.changedBy}</span>
+                  <span className="text-slate-500">changed status to</span>
+                  <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-semibold border border-blue-200">
+                    {log.newStatus}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-xs text-slate-500 italic">No status changes recorded yet.</div>
+          )}
+        </div>
+      </div>
 
     </div>
   );

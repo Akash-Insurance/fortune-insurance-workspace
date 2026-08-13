@@ -220,7 +220,7 @@ export default function HomePage() {
 
   // Update Status
   const handleUpdateStatus = async (id: string, status: ProposalStatus) => {
-    await updateProposalStatus(id, status);
+    await updateProposalStatus(id, status, user?.name || 'Admin');
     const updatedList = await getProposals();
     const updatedMetrics = await getAnalyticsMetrics();
     setProposals(updatedList);
